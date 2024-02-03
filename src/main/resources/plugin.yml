@@ -1,0 +1,5 @@
+name: mmorpg
+version: '${project.version}'
+main: net.luuh.mmorpg.Main
+api-version: '1.20'
+load: STARTUP
