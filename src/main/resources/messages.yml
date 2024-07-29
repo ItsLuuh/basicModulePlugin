@@ -31,6 +31,12 @@ case-invalid-args: '%ERROR%Invalid arguments'
 case-invalid-player: '%ERROR%Invalid player'
 case-invalid-amount: '%ERROR%Invalid amount'
 
+# JOIN/QUIT MESSAGE #
+
+welcome-message: '%SUCCESS%Welcome %player% to the server!'
+join-message: '&8(%SUCCESS%%verion_displayname%<reset>&8)'
+quit-message: '&8(%ERROR%%verion_displayname%<reset>&8)'
+
 # GAMEMODE #
 
 gamemode: '%SUCCESS%You are now in %verion_gamemode%.'

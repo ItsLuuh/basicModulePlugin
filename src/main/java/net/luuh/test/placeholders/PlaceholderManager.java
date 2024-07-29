@@ -1,6 +1,7 @@
 package net.luuh.test.placeholders;
 
 import net.luuh.test.Helper;
+import net.luuh.test.players.economy.constant.EconomyType;
 import net.luuh.test.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
@@ -86,13 +87,13 @@ public class PlaceholderManager {
             case "verion_ip":
                 return player.getAddress().getAddress().getHostAddress();
             case "verion_balance":
-                return String.valueOf(helper.getPlayerManager().getUser(player).getBalance());
+                return String.valueOf(helper.getPlayerManager().getUser(player).getUserEconomy().get(EconomyType.BALANCE).getNow(0d));
             case "verion_balance_formatted":
-                return Util.formatNumberWithDot(helper.getPlayerManager().getUser(player).getBalance());
+                return Util.formatNumberWithDot(helper.getPlayerManager().getUser(player).getUserEconomy().get(EconomyType.BALANCE).getNow(0d));
             case "verion_credits":
-                return String.valueOf(helper.getPlayerManager().getUser(player).getCredits());
+                return String.valueOf(helper.getPlayerManager().getUser(player).getUserEconomy().get(EconomyType.CREDITS).getNow(0d));
             case "verion_credits_formatted":
-                return Util.formatNumberWithDot(helper.getPlayerManager().getUser(player).getCredits());
+                return Util.formatNumberWithDot(helper.getPlayerManager().getUser(player).getUserEconomy().get(EconomyType.CREDITS).getNow(0d));
             case "verion_deaths":
                 return String.valueOf(player.getStatistic(Statistic.DEATHS));
             case "verion_mobkills":

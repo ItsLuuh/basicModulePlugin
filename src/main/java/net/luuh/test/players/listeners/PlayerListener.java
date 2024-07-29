@@ -29,12 +29,8 @@ public class PlayerListener extends DefaultListener {
     @EventHandler
     public void playerQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
-        e.quitMessage(Component.empty());
-        helper.getPlayerManager().update(player).whenComplete((unused, throwable) -> {
-            if (throwable != null) throwable.printStackTrace();
-            helper.getPlayerManager().remove(player);
-            helper.getPlayerManager().getUser(player).clearRequests();
-        });
+        e.quitMessage(helper.getRMUtils().readTranslation(player, "player-quit"));
+        helper.getPlayerManager().remove(player);
     }
 
 }
