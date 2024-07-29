@@ -11,7 +11,14 @@ import java.util.function.Supplier;
 
 public class DatabaseTable {
 
-    private final ExecutorService DATABASE_EXECUTOR = Executors.newSingleThreadExecutor();
+    private final ExecutorService DATABASE_EXECUTOR = Executors.newFixedThreadPool(3, t -> {
+        Thread thread = new Thread(t);
+        thread.setName("verion-database");
+        thread.setDaemon(false);
+
+        return thread;
+    });
+
     protected final DatabaseProvider databaseProvider;
     protected final String[] tableQueries;
 
@@ -35,5 +42,4 @@ public class DatabaseTable {
     protected <T> CompletableFuture<T> supplyAsync(Supplier<T> supplier) {
         return CompletableFuture.supplyAsync(supplier, DATABASE_EXECUTOR);
     }
-
 }

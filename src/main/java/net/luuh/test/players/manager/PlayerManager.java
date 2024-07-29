@@ -5,6 +5,8 @@ import net.luuh.test.abstraction.modules.metadata.loader.MetadataLoader;
 import net.luuh.test.abstraction.modules.metadata.loader.SQLMetadataLoader;
 import net.luuh.test.abstraction.modules.metadata.loader.SimpleMetadataLoader;
 import net.luuh.test.database.DatabaseProvider;
+import net.luuh.test.players.economy.constant.EconomyType;
+import net.luuh.test.players.economy.object.UserEconomy;
 import net.luuh.test.players.objects.UPT;
 import net.luuh.test.players.objects.User;
 import org.bukkit.Bukkit;
@@ -21,6 +23,9 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import static java.util.concurrent.CompletableFuture.runAsync;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 public class PlayerManager {
 
     private final Map<String, User> players = new HashMap<>();
@@ -34,8 +39,8 @@ public class PlayerManager {
     }
 
     private final String SELECT = "SELECT * FROM verion_player WHERE playerName = ?;";
+    private final String SELECT_BY_UPT = "SELECT * FROM verion_player WHERE upt = ?;";
     private final String REGISTER = "INSERT INTO verion_player(uuid, playerName) VALUES (?, ?);";
-    private final String UPDATE = "UPDATE verion_player SET balance = ?, credits = ? WHERE playerName = ?;";
     private final String WIPE = "DELETE FROM verion_player WHERE playerName = ?";
     private final String WIPE_TEMPLATE = "UPDATE verion_player SET %s WHERE playerName = ?;";
 
@@ -69,7 +74,6 @@ public class PlayerManager {
 
     public CompletableFuture<Void> load(Player player) {
         return CompletableFuture.runAsync(() -> {
-            UUID uuid = player.getUniqueId();
             String playerName = player.getName();
             try (Connection connection = databaseProvider.getConnection(); PreparedStatement select = connection.prepareStatement(SELECT)) {
                 select.setString(1, player.getName());
@@ -98,7 +102,9 @@ public class PlayerManager {
                     }
                 }
 
-                User user = new User(upt, uuid, playerName, balance, credits);
+                UserEconomy userEconomy = new UserEconomy(this, upt, new HashMap<>(Map.of(EconomyType.BALANCE, balance, EconomyType.CREDITS, credits)));
+
+                User user = new User(upt, playerName, userEconomy);
 
                 for (MetadataLoader<?> loader : helper.getLoaders()) {
                     if (loader instanceof SQLMetadataLoader<?> sqlLoader)
@@ -115,20 +121,65 @@ public class PlayerManager {
         });
     }
 
-    public CompletableFuture<Void> update(Player player) {
-        User user = getUser(player);
-        return CompletableFuture.runAsync(() -> {
-            try (Connection connection = databaseProvider.getConnection(); PreparedStatement update = connection.prepareStatement(UPDATE)) {
-                update.setBigDecimal(1, user.getBalance());
-                update.setBigDecimal(2, user.getCredits());
-                update.setString(3, player.getName());
+    // USER ECONOMY MANAGER
 
-                update.executeUpdate();
+    public CompletableFuture<Void> setValue(UPT upt, EconomyType economyType, double amount) {
+        return runAsync(() -> {
+            try (Connection connection = databaseProvider.getConnection(); PreparedStatement setValue = connection.prepareStatement("UPDATE verion_player SET " + economyType.getColumn() + " = ? WHERE upt = ?;")) {
+                setValue.setDouble(1, amount);
+                setValue.setString(2, upt.getToken());
+
+                setValue.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         });
     }
+
+    public CompletableFuture<Double> getValue(UPT upt, EconomyType economyType) {
+        return supplyAsync(() -> {
+            try (Connection connection = databaseProvider.getConnection(); PreparedStatement select = connection.prepareStatement(SELECT_BY_UPT)) {
+                select.setString(1, upt.getToken());
+                ResultSet selectResult = select.executeQuery();
+
+                if (selectResult.next())
+                    return selectResult.getBigDecimal(economyType.getColumn()).doubleValue();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return 0d;
+        });
+    }
+
+    public CompletableFuture<Void> addValue(UPT upt, double amount, EconomyType economyType) {
+        return runAsync(() -> {
+            try (Connection connection = databaseProvider.getConnection(); PreparedStatement addValue = connection.prepareStatement("UPDATE verion_player SET " + economyType.getColumn() + " = " + economyType.getColumn() + " + ? WHERE upt = ?;")) {
+                addValue.setDouble(1, amount);
+                addValue.setString(2, upt.getToken());
+
+                addValue.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public CompletableFuture<Void> removeValue(UPT upt, double amount, EconomyType economyType) {
+        return runAsync(() -> {
+            try (Connection connection = databaseProvider.getConnection(); PreparedStatement removeValue = connection.prepareStatement("UPDATE verion_player SET " + economyType.getColumn() + " = " + economyType.getColumn() + " - ? WHERE upt = ?;")) {
+                removeValue.setDouble(1, amount);
+                removeValue.setString(2, upt.getToken());
+
+                removeValue.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    // PLAYER MANAGER
 
     public CompletableFuture<Void> loadOnline() {
         return CompletableFuture.allOf(Bukkit.getOnlinePlayers()
@@ -136,46 +187,6 @@ public class PlayerManager {
                 .map(this::load)
                 .toList()
                 .toArray(new CompletableFuture[]{}));
-    }
-
-    public CompletableFuture<Void> updateOnline() {
-        return CompletableFuture.allOf(Bukkit.getOnlinePlayers()
-                .stream()
-                .map(this::update)
-                .toList()
-                .toArray(new CompletableFuture[]{}));
-    }
-
-    public CompletableFuture<Void> death(Player player, Map<String, Object> parameters) {
-        return CompletableFuture.runAsync(() -> {
-            StringBuilder setClauseBuilder = new StringBuilder();
-
-            for (String key : parameters.keySet()) {
-                setClauseBuilder.append(key).append(" = ?, ");
-            }
-
-            if (setClauseBuilder.length() == 0) return;
-
-            setClauseBuilder.setLength(setClauseBuilder.length() - 2);
-            String setClause = setClauseBuilder.toString();
-
-            try (Connection connection = databaseProvider.getConnection(); PreparedStatement update = connection.prepareStatement(String.format(WIPE_TEMPLATE, setClause))) {
-                int index = 1;
-                for (Object value : parameters.values()) {
-                    if (value instanceof BigDecimal) {
-                        update.setBigDecimal(index++, (BigDecimal) value);
-                    } else if (value instanceof Integer) {
-                        update.setInt(index++, (int) value);
-                    } else if (value instanceof String) {
-                        update.setString(index++, (String) value);
-                    }
-                }
-                update.setString(index, player.getName());
-                update.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
     }
 
     public CompletableFuture<Void> wipePlayer(Player player) {
@@ -187,38 +198,6 @@ public class PlayerManager {
                 e.printStackTrace();
             }
         });
-    }
-
-    public Map<String, Object> createParameters(Object... keyValuePairs) {
-
-        /*
-
-        # USAGE #
-        #
-        Map<String, Object> parameters = helper.getPlayerManager().createParameters(
-                "balance", BigDecimal.ZERO,
-                "coins", 0,
-                "money", 0,
-                "candies", 0,
-                "name", "John"
-        );
-        #
-        # USAGE #
-
-        */
-
-        if (keyValuePairs.length % 2 != 0) {
-            throw new IllegalArgumentException("number of arguments must be even");
-        }
-
-        Map<String, Object> parameters = new HashMap<>();
-        for (int i = 0; i < keyValuePairs.length; i += 2) {
-            if (!(keyValuePairs[i] instanceof String)) {
-                throw new IllegalArgumentException("key must be a string");
-            }
-            parameters.put((String) keyValuePairs[i], keyValuePairs[i + 1]);
-        }
-        return parameters;
     }
 
 }

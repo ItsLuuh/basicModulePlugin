@@ -2,7 +2,7 @@ package net.luuh.test.database;
 
 import net.luuh.test.Main;
 import net.luuh.test.abstraction.database.DatabaseTable;
-import net.luuh.test.database.tables.players.PlayerTable;
+import net.luuh.test.players.PlayerTable;
 
 import java.sql.Connection;
 import java.sql.SQLException;

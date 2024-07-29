@@ -1,0 +1,81 @@
+# %a(num) = arg (num)
+# Usage: () = required, [] = optional
+#
+# There are Default Colors that you can create
+# to speed-up you writing messages
+# You can create one here:
+defaultcolors:
+  success: '<#00FF00>'
+  error: '<#FF0000>'
+
+# CORE #
+
+core-message:
+  - ''
+  - <#457741>⬛⬛⬛⬛⬛⬛⬛⬛    <dark_gray>┎
+  - <#3A6938>⬛⬛⬛<#457741>⬛⬛<#3A6938>⬛⬛⬛    <dark_gray>┣  <#FF0000>CORE <gray>ver. <#FF0000>%descent_coreversion%
+  - <#457741>⬛⬛⬛<#3A6938>⬛⬛<#457741>⬛⬛⬛    <dark_gray>┣  <gray>By <#FF0000>ItsLuuh
+  - <#A5A6A3>⬛<#1A1A1A>⬛<#A5A6A3>⬛<#457741>⬛⬛<#A5A6A3>⬛<#1A1A1A>⬛<#A5A6A3>⬛    <dark_gray>┣
+  - <#A5A6A3>⬛<#1A1A1A>⬛⬛<#457741>⬛⬛<#A5A6A3>⬛<#1A1A1A>⬛⬛    <dark_gray>┣  <#FF0000>Descent
+  - <#815D46>⬛⬛⬛⬛⬛⬛⬛⬛    <dark_gray>┣  <gray>Copyright ©.
+  - <#3A6938>⬛⬛⬛⬛⬛⬛⬛⬛    <dark_gray>┗
+core-reload-all: '%SUCCESS%All files have been successfully reloaded.'
+core-reload-config: '%SUCCESS%The config file has been successfully reloaded.'
+core-reload-mex: '%SUCCESS%The message file has been successfully reloaded.'
+core-help: ''
+
+# CASES #
+
+case-no-perms: '%ERROR%You do not have permission to use this command.'
+case-invalid-args: '%ERROR%Invalid arguments'
+case-invalid-player: '%ERROR%Invalid player'
+case-invalid-amount: '%ERROR%Invalid amount'
+
+# GAMEMODE #
+
+gamemode: '%SUCCESS%You are now in %verion_gamemode%.'
+gamemode-other: '%SUCCESS%%a1 is now in %a2.'
+gamemode-usage: '/gamemode (MODE) [PLAYER]'
+
+# FLY #
+
+fly-on: '%SUCCESS%You are now flying.'
+fly-off: '%ERROR%You are no longer flying'
+fly-other-on: '%SUCCESS%%a1 is now flying'
+fly-other-off: '%ERROR%%a1 is no longer flying'
+fly-usage: /fly (ON/OFF) [PLAYER]
+
+# ITEMEDITOR #
+
+itemeditor-rename: '%SUCCESS%The item has been renamed to %a1'
+itemeditor-lore: '%SUCCESS%The lore has been added to the item'
+
+itemeditor-usage: /itemeditor (RENAME/LORE) (VALUE)
+
+# STAFFMODE #
+
+staffmode-join: '%SUCCESS%You have entered the Staff Mode.'
+staffmode-quit: '%ERROR%You have exited Staff Mode.'
+
+# REQUESTS #
+
+## TRANSACTION REQUESTS ##
+
+transaction-request-sent: '%SUCCESS%You have sent a transaction request to %a1.'
+transaction-request-received: '%SUCCESS%%a1 has sent you a transaction request.'
+transaction-request-expired: '%ERROR%The transaction request from %a1 has expired.'
+transaction-request-accepted: '%SUCCESS%You have accepted the transaction request from %a1.'
+transaction-request-accepted-sender: '%SUCCESS%a1 has accepted your transaction request.'
+transaction-request-denied: '%ERROR%You have denied the transaction request from %a1.'
+transaction-request-denied-sender: '%ERROR%a1 has denied your transaction request.'
+
+## TRADE REQUESTS ##
+
+trade-request-sent: '%SUCCESS%You have sent a trade request to %a1.'
+trade-request-received: '%SUCCESS%%a1 has sent you a trade request.'
+trade-request-expired: '%ERROR%The trade request from %a1 has expired.'
+trade-request-accepted: '%SUCCESS%You have accepted the trade request from %a1.'
+trade-request-accepted-sender: '%SUCCESS%a1 has accepted your trade request.'
+trade-request-denied: '%ERROR%You have denied the trade request from %a1.'
+trade-request-denied-sender: '%ERROR%a1 has denied your trade request.'
+

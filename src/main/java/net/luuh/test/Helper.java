@@ -1,9 +1,9 @@
 package net.luuh.test;
 
 import net.luckperms.api.LuckPerms;
-import net.luuh.test.abstraction.economy.Economy;
 import net.luuh.test.abstraction.modules.Module;
 import net.luuh.test.abstraction.modules.metadata.loader.MetadataLoader;
+import net.luuh.test.constants.DefaultColors;
 import net.luuh.test.database.DatabaseProvider;
 import net.luuh.test.files.MexFileManager;
 import net.luuh.test.modules.essentials.Essentials;
@@ -12,16 +12,17 @@ import net.luuh.test.modules.staff.StaffMode;
 import net.luuh.test.placeholders.PlaceholderManager;
 import net.luuh.test.players.listeners.PlayerListener;
 import net.luuh.test.players.manager.PlayerManager;
+import net.luuh.test.players.task.RequestsTask;
 import net.luuh.test.utils.RMUtils;
 import net.luuh.test.utils.color;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 public class Helper {
 
@@ -33,8 +34,8 @@ public class Helper {
     private LuckPerms luckPerms = null;
     private final MexFileManager mexFileManager;
     private RMUtils rmutils;
+    private final DefaultColors defaultColors;
     private final Map<Class<? extends Module>, Module> moduleMap = new HashMap<>();
-    private final Map<Class<? extends Economy>, Economy> economyMap = new HashMap<>();
     private final Set<MetadataLoader<?>> loaders = new HashSet<>();
 
     public Helper(Main plugin) {
@@ -48,6 +49,8 @@ public class Helper {
         this.playerManager = new PlayerManager(this);
         this.playerManager.loadOnline().join();
 
+        this.defaultColors = new DefaultColors();
+        this.defaultColors.load();
 
         this.mexFileManager = new MexFileManager();
         this.mexFileManager.setup(plugin);
@@ -57,6 +60,8 @@ public class Helper {
         if (provider != null) {
             luckPerms = provider.getProvider();
         }
+
+        this.scheduler.timerAsync(new RequestsTask(this), 0, 20);
 
         Essentials essentials = new Essentials(this);
         ItemEditor itemEditor = new ItemEditor(this);
@@ -69,8 +74,8 @@ public class Helper {
 
         );
 
+
         this.moduleMap.values().forEach(Module::enable);
-        this.economyMap.values().forEach(Economy::enable);
 
         this.papi = new PlaceholderManager(this);
 
@@ -81,14 +86,6 @@ public class Helper {
     public void log(String message) {
         message = color.formatStringComponent(message);
         Bukkit.getConsoleSender().sendMessage(message);
-    }
-
-    private void registerEconomy(Economy economy) {
-        this.economyMap.put(economy.getClass(), economy);
-    }
-    private void registerEconomy(Economy... economies) {
-        for (Economy economy : economies)
-            registerEconomy(economy);
     }
 
     private void registerModule(Module module) {this.moduleMap.put(module.getClass(), module);}
@@ -102,14 +99,10 @@ public class Helper {
 
         this.moduleMap.values().forEach(Module::disable);
 
-        this.playerManager.updateOnline().whenComplete((unused, throwable) -> {
-            if (throwable != null)
-                plugin.getLogger().log(Level.SEVERE, throwable, () -> "error during updating online players");
+        for(Player onlinePlayer : Bukkit.getOnlinePlayers())onlinePlayer.closeInventory();
 
-            plugin.getLogger().info("updated all online players");
+        this.databaseProvider.disassemble();
 
-            this.databaseProvider.disassemble();
-        });
     }
 
     public void reloadConfig(int i) {
@@ -131,6 +124,7 @@ public class Helper {
     public PlayerManager getPlayerManager() {
         return playerManager;
     }
+
     public PlaceholderManager getPlaceholderManager() {return papi;}
 
     public DatabaseProvider getDatabaseProvider() {
@@ -144,6 +138,9 @@ public class Helper {
     public Scheduler getScheduler() {
         return scheduler;
     }
+
+    public DefaultColors getDefaultColors() {return defaultColors;}
+
     public MexFileManager getMexFileManager() {return mexFileManager;}
 
     public RMUtils getRMUtils() {

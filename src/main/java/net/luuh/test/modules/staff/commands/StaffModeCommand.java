@@ -3,7 +3,6 @@ package net.luuh.test.modules.staff.commands;
 import net.luuh.test.Helper;
 import net.luuh.test.abstraction.modules.ModuleCommand;
 import net.luuh.test.modules.staff.StaffMode;
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
 public class StaffModeCommand extends ModuleCommand<StaffMode> {

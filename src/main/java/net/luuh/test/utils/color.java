@@ -5,7 +5,10 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.luuh.test.Main;
 import net.luuh.test.constants.DefaultColors;
+import net.luuh.test.constants.Palette;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,6 +16,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class color {
+
+    private static final DefaultColors defaultColors = Main.getPlugin().getHelper().getDefaultColors();
 
     public static Component format(String message) {
         return  MiniMessage.miniMessage().deserialize(message);
@@ -24,8 +29,8 @@ public class color {
 
         // COLOR PLACEHOLDERS
 
-        for(String color : DefaultColors.getColors().keySet()) {
-            message = message.replaceAll("%" + color + "%", DefaultColors.get(color));
+        for(Palette palette : defaultColors.getColors()) {
+            message = message.replaceAll("%" + palette + "%", defaultColors.get(palette.getName()));
         }
 
         // FINAL MESSAGE

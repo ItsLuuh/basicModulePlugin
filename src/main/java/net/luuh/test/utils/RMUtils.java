@@ -3,8 +3,6 @@ package net.luuh.test.utils;
 import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import net.kyori.adventure.text.Component;
 import net.luuh.test.Helper;
-import net.luuh.test.placeholders.PlaceholderManager;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;

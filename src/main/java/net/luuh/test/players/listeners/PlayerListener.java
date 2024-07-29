@@ -33,20 +33,8 @@ public class PlayerListener extends DefaultListener {
         helper.getPlayerManager().update(player).whenComplete((unused, throwable) -> {
             if (throwable != null) throwable.printStackTrace();
             helper.getPlayerManager().remove(player);
+            helper.getPlayerManager().getUser(player).clearRequests();
         });
     }
-
-    /*
-    @EventHandler
-    public void onPreCommand(PlayerCommandPreprocessEvent e) {
-        Player player = e.getPlayer();
-        if (!e.getMessage().startsWith(Request.ACCEPT_COMMAND)) return;
-        User user = helper.getPlayerManager().getUser(player);
-        Request request = user.getRequest().orElse(null);
-        if (request == null) return;
-        request.accept();
-        e.setCancelled(true);
-    }
-     */
 
 }
