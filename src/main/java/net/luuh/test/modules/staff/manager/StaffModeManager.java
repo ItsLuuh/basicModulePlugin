@@ -57,7 +57,7 @@ public class StaffModeManager {
         boolean vanish = !isVanish(player);
         vanishMap.put(player, vanish);
         if(vanish) {
-            player.spawnParticle(Particle.SMOKE_NORMAL, player.getLocation(), 400, 0, 1, 0 , 0.25);
+            player.spawnParticle(Particle.LARGE_SMOKE, player.getLocation(), 400, 0, 1, 0 , 0.25);
             player.setInvisible(true);
             player.setAllowFlight(true);
         } else {
