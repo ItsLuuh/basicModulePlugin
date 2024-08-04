@@ -5,15 +5,15 @@
 # to speed-up you writing messages
 # You can create one here:
 defaultcolors:
-  success: '<#00FF00>'
-  error: '<#FF0000>'
+  success: <#00FF00>
+  error: <#FF0000>
 
 # CORE #
 
 core-message:
   - ''
   - <#457741>⬛⬛⬛⬛⬛⬛⬛⬛    <dark_gray>┎
-  - <#3A6938>⬛⬛⬛<#457741>⬛⬛<#3A6938>⬛⬛⬛    <dark_gray>┣  <#FF0000>CORE <gray>ver. <#FF0000>%descent_coreversion%
+  - <#3A6938>⬛⬛⬛<#457741>⬛⬛<#3A6938>⬛⬛⬛    <dark_gray>┣  <#FF0000>CORE <gray>ver. <#FF0000>%verion_coreversion%
   - <#457741>⬛⬛⬛<#3A6938>⬛⬛<#457741>⬛⬛⬛    <dark_gray>┣  <gray>By <#FF0000>ItsLuuh
   - <#A5A6A3>⬛<#1A1A1A>⬛<#A5A6A3>⬛<#457741>⬛⬛<#A5A6A3>⬛<#1A1A1A>⬛<#A5A6A3>⬛    <dark_gray>┣
   - <#A5A6A3>⬛<#1A1A1A>⬛⬛<#457741>⬛⬛<#A5A6A3>⬛<#1A1A1A>⬛⬛    <dark_gray>┣  <#FF0000>Descent
@@ -33,15 +33,15 @@ case-invalid-amount: '%ERROR%Invalid amount'
 
 # JOIN/QUIT MESSAGE #
 
-welcome-message: '%SUCCESS%Welcome %player% to the server!'
-join-message: '&8(%SUCCESS%%verion_displayname%<reset>&8)'
-quit-message: '&8(%ERROR%%verion_displayname%<reset>&8)'
+welcome-message: '%SUCCESS%Welcome %verion_displayname% to the server!'
+join-message: <dark_gray>(%SUCCESS%%verion_displayname%<reset><dark_gray>)
+quit-message: <dark_gray>(%ERROR%%verion_displayname%<reset><dark_gray>)
 
 # GAMEMODE #
 
 gamemode: '%SUCCESS%You are now in %verion_gamemode%.'
 gamemode-other: '%SUCCESS%%a1 is now in %a2.'
-gamemode-usage: '/gamemode (MODE) [PLAYER]'
+gamemode-usage: /gamemode (MODE) [PLAYER]
 
 # FLY #
 
@@ -55,7 +55,6 @@ fly-usage: /fly (ON/OFF) [PLAYER]
 
 itemeditor-rename: '%SUCCESS%The item has been renamed to %a1'
 itemeditor-lore: '%SUCCESS%The lore has been added to the item'
-
 itemeditor-usage: /itemeditor (RENAME/LORE) (VALUE)
 
 # STAFFMODE #
@@ -65,17 +64,18 @@ staffmode-quit: '%ERROR%You have exited Staff Mode.'
 
 # REQUESTS #
 
-## TRANSACTION REQUESTS ##
+# # TRANSACTION REQUESTS ##
 
 transaction-request-sent: '%SUCCESS%You have sent a transaction request to %a1.'
 transaction-request-received: '%SUCCESS%%a1 has sent you a transaction request.'
 transaction-request-expired: '%ERROR%The transaction request from %a1 has expired.'
-transaction-request-accepted: '%SUCCESS%You have accepted the transaction request from %a1.'
+transaction-request-accepted: '%SUCCESS%You have accepted the transaction request
+  from %a1.'
 transaction-request-accepted-sender: '%SUCCESS%a1 has accepted your transaction request.'
 transaction-request-denied: '%ERROR%You have denied the transaction request from %a1.'
 transaction-request-denied-sender: '%ERROR%a1 has denied your transaction request.'
 
-## TRADE REQUESTS ##
+# # TRADE REQUESTS ##
 
 trade-request-sent: '%SUCCESS%You have sent a trade request to %a1.'
 trade-request-received: '%SUCCESS%%a1 has sent you a trade request.'

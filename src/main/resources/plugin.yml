@@ -1,5 +1,7 @@
-name: mmorpg
+name: Descent
 version: '${project.version}'
-main: net.luuh.mmorpg.Main
+main: net.luuh.descent.Main
 api-version: '1.20'
 load: STARTUP
+depend:
+  - LuckPerms
