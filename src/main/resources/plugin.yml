@@ -1,0 +1,5 @@
+name: descent
+version: '${project.version}'
+main: net.luuh.descent.Main
+api-version: '1.21'
+load: STARTUP

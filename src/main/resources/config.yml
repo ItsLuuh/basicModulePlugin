@@ -1,0 +1,45 @@
+# - Specify as "host:port" if differs from 3306
+storage:
+  username: 'root'
+  password: ''
+  address: 'localhost'
+  database: 'players'
+
+chat:
+  format: "%prefix% <white>%player% <#FF0000>» <gray>%message%<reset>"
+  hover: true
+  hover-text:
+    - "&aClick to reply"
+    - "&aClick to reply"
+  moderation:
+    anti-caps: true
+    anti-spam: true
+    anti-flood: true
+    blocked-words-message: "<red>Non puoi usare parole volgari!"
+    staff-format: "<#005DCD><bold>[STAFF]</bold> <gray>%player% <#005DCD>» <gray>%message%<reset>"
+    staff-decisions: "<click:RUN_COMMAND:/warngui><#FFD900>[WARN]</click> <click:RUN_COMMAND:/mutegui><#FF8000>[MUTE]</click> <click:RUN_COMMAND:/bangui><#FF0000>[BAN]</click>"
+    blocked-words:
+      - "cazzo"
+      - "cazz"
+      - "vaffanculo"
+      - "fanculo"
+      - "fottit"
+      - "fottut"
+      - "merda"
+      - "stronz"
+      - "puttan"
+      - "troia"
+      - "cul"
+      - "froci"
+      - "negr"
+      - "dio"
+      - "porc"
+      - "bastard"
+      - "coglion"
+      - "mortacc"
+      - "figa"
+      - "pompin"
+      - "sborr"
+      - "madonn"
+      - "mado"
+      - "cristo"
