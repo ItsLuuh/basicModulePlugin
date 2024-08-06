@@ -9,9 +9,12 @@ import net.luuh.descent.files.MexFileManager;
 import net.luuh.descent.modules.essentials.Essentials;
 import net.luuh.descent.modules.itemeditor.ItemEditor;
 import net.luuh.descent.modules.staff.StaffMode;
+import net.luuh.descent.modules.stats.Stats;
 import net.luuh.descent.placeholders.PlaceholderManager;
 import net.luuh.descent.players.listeners.PlayerListener;
 import net.luuh.descent.players.manager.PlayerManager;
+import net.luuh.descent.players.task.HealthRegenTask;
+import net.luuh.descent.players.task.ManaRegenTask;
 import net.luuh.descent.players.task.RequestsTask;
 import net.luuh.descent.utils.RMUtils;
 import org.bukkit.Bukkit;
@@ -63,15 +66,19 @@ public class Helper {
         }
 
         this.scheduler.timerAsync(new RequestsTask(this), 0, 20);
+        this.scheduler.timerAsync(new ManaRegenTask(this), 0, 20);
+        this.scheduler.timerAsync(new HealthRegenTask(this), 0, 20);
 
         Essentials essentials = new Essentials(this);
         ItemEditor itemEditor = new ItemEditor(this);
         StaffMode staffMode = new StaffMode(this);
+        Stats stats = new Stats(this);
 
         registerModules(
                 essentials,
                 itemEditor,
-                staffMode
+                staffMode,
+                stats
 
         );
 

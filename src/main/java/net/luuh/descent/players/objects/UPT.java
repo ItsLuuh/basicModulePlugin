@@ -22,6 +22,11 @@ public class UPT {
         this.token = token;
     }
 
+    public UPT(Player player) {
+        this.player = player;
+        this.token = generate(player).getToken();
+    }
+
     public static UPT generate(Player player) {
         SecureRandom random = new SecureRandom();
         StringBuilder id = new StringBuilder(ID_LENGTH);

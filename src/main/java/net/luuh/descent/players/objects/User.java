@@ -3,6 +3,7 @@ package net.luuh.descent.players.objects;
 import net.luuh.descent.abstraction.modules.metadata.Metadata;
 import net.luuh.descent.abstraction.request.Request;
 import net.luuh.descent.players.economy.object.UserEconomy;
+import net.luuh.descent.players.stats.object.UserStats;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -16,13 +17,15 @@ public class User {
     private final UPT upt;
     private final String displayName;
     private final UserEconomy userEconomy;
+    private final UserStats userStats;
     private Set<Request> requests;
     private final Map<Class<? extends Metadata>, Metadata> metadata;
 
-    public User(UPT upt, String displayName, UserEconomy userEconomy) {
+    public User(UPT upt, String displayName, UserEconomy userEconomy, UserStats userStats) {
         this.upt = upt;
         this.displayName = displayName;
         this.userEconomy = userEconomy;
+        this.userStats = userStats;
         this.metadata = new HashMap<>();
     }
 
@@ -38,6 +41,10 @@ public class User {
 
     public UserEconomy getUserEconomy() {
         return userEconomy;
+    }
+
+    public UserStats getUserStats() {
+        return userStats;
     }
 
     public void setRequests(Set<Request> requests) {

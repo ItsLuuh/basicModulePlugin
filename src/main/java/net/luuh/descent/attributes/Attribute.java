@@ -1,15 +1,16 @@
 package net.luuh.descent.attributes;
 
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-public abstract class Attribute<T, Z> {
+public abstract class Attribute<Z> {
 
     protected final String name;
     protected final String icon;
     protected final Z value;
-    protected final PersistentDataType<T, Z> dataType;
+    protected final PersistentDataType dataType;
 
-    protected Attribute(String name, String icon, Z value, PersistentDataType<T, Z> dataType) {
+    protected Attribute(String name, String icon, Z value, PersistentDataType dataType) {
         this.name = name;
         this.icon = icon;
         this.value = value;
@@ -24,7 +25,7 @@ public abstract class Attribute<T, Z> {
         return value;
     }
 
-    public PersistentDataType<T, Z> getDataType() {
+    public PersistentDataType getDataType() {
         return dataType;
     }
 

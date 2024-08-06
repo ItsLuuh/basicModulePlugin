@@ -14,6 +14,17 @@ public class PlayerTable extends DatabaseTable {
                 playerName VARCHAR(250) NOT NULL,
                 balance DECIMAL(10, 2) NOT NULL DEFAULT '0.00',
                 credits DECIMAL(10, 2) NOT NULL DEFAULT '0.00',
+                strength INT NOT NULL DEFAULT 1,
+                defense INT NOT NULL DEFAULT 1,
+                healthRegen INT NOT NULL DEFAULT 1,
+                maxHealth INT NOT NULL DEFAULT 100,
+                intelligence INT NOT NULL DEFAULT 1,
+                manaRegen INT NOT NULL DEFAULT 1,
+                maxMana INT NOT NULL DEFAULT 100,
+                agility INT NOT NULL DEFAULT 1,
+                playerSpeed INT NOT NULL DEFAULT 1,
+                critChance INT NOT NULL DEFAULT 10,
+                critDamage INT NOT NULL DEFAULT 1,
                 firstJoin TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
             """;

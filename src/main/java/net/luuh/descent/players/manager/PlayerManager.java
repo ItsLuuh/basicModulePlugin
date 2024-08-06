@@ -4,21 +4,25 @@ import net.luuh.descent.Helper;
 import net.luuh.descent.abstraction.modules.metadata.loader.MetadataLoader;
 import net.luuh.descent.abstraction.modules.metadata.loader.SQLMetadataLoader;
 import net.luuh.descent.abstraction.modules.metadata.loader.SimpleMetadataLoader;
+import net.luuh.descent.attributes.Attribute;
+import net.luuh.descent.attributes.AttributeManager;
 import net.luuh.descent.database.DatabaseProvider;
 import net.luuh.descent.players.economy.constant.EconomyType;
 import net.luuh.descent.players.economy.object.UserEconomy;
 import net.luuh.descent.players.objects.UPT;
 import net.luuh.descent.players.objects.User;
+import net.luuh.descent.players.stats.constant.StatType;
+import net.luuh.descent.players.stats.object.UserStats;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -72,20 +76,23 @@ public class PlayerManager {
     }
 
     public CompletableFuture<Void> load(Player player) {
-        return CompletableFuture.runAsync(() -> {
+        return runAsync(() -> {
             String playerName = player.getName();
             try (Connection connection = databaseProvider.getConnection(); PreparedStatement select = connection.prepareStatement(SELECT)) {
                 select.setString(1, player.getName());
                 ResultSet selectResult = select.executeQuery();
 
                 String uptS;
-                UPT upt = new UPT(player, "0");
-                BigDecimal balance = new BigDecimal(0);
-                BigDecimal credits = new BigDecimal(0);
+                UPT upt = new UPT(player);
+                Map<StatType, Double> stats = new HashMap<>();
+                Map<EconomyType, BigDecimal> economy = new HashMap<>();
                 if (selectResult.next()) {
-                    upt = new UPT (player, selectResult.getString("upt"));
-                    balance = selectResult.getBigDecimal("balance");
-                    credits = selectResult.getBigDecimal("credits");
+                    upt = new UPT(player, selectResult.getString("upt"));
+                    for(StatType statType : StatType.values())
+                        stats.put(statType, selectResult.getDouble(statType.getColumn()));
+
+                    for(EconomyType economyType : EconomyType.values())
+                        economy.put(economyType, selectResult.getBigDecimal(economyType.getColumn()));
 
                 } else {
                     try (PreparedStatement register = connection.prepareStatement(REGISTER, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -100,9 +107,12 @@ public class PlayerManager {
                     }
                 }
 
-                UserEconomy userEconomy = new UserEconomy(this, upt, new HashMap<>(Map.of(EconomyType.BALANCE, balance, EconomyType.CREDITS, credits)));
+                UserStats userStats = new UserStats(this, upt, stats);
+                userStats.loadAttributes(player);
 
-                User user = new User(upt, playerName, userEconomy);
+                UserEconomy userEconomy = new UserEconomy(this, upt, economy);
+
+                User user = new User(upt, playerName, userEconomy, userStats);
 
                 for (MetadataLoader<?> loader : helper.getLoaders()) {
                     if (loader instanceof SQLMetadataLoader<?> sqlLoader)
@@ -177,6 +187,64 @@ public class PlayerManager {
         });
     }
 
+    // USER STATS MANAGER
+
+    public CompletableFuture<Void> setValue(UPT upt, StatType statType, double amount) {
+        return runAsync(() -> {
+            try (Connection connection = databaseProvider.getConnection(); PreparedStatement setValue = connection.prepareStatement("UPDATE verion_player SET " + statType.getColumn() + " = ? WHERE upt = ?;")) {
+                setValue.setDouble(1, amount);
+                setValue.setString(2, upt.getToken());
+
+                setValue.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public CompletableFuture<Double> getValue(UPT upt, StatType statType) {
+        return supplyAsync(() -> {
+            try (Connection connection = databaseProvider.getConnection(); PreparedStatement select = connection.prepareStatement(SELECT_BY_UPT)) {
+                select.setString(1, upt.getToken());
+                ResultSet selectResult = select.executeQuery();
+
+                if (selectResult.next())
+                    return selectResult.getBigDecimal(statType.getColumn()).doubleValue();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return 0d;
+        });
+    }
+
+    public CompletableFuture<Void> addValue(UPT upt, double amount, StatType statType) {
+        return runAsync(() -> {
+            try (Connection connection = databaseProvider.getConnection(); PreparedStatement addValue = connection.prepareStatement("UPDATE verion_player SET " + statType.getColumn() + " = " + statType.getColumn() + " + ? WHERE upt = ?;")) {
+                addValue.setDouble(1, amount);
+                addValue.setString(2, upt.getToken());
+
+                addValue.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public CompletableFuture<Void> removeValue(UPT upt, double amount, StatType statType) {
+        return runAsync(() -> {
+            try (Connection connection = databaseProvider.getConnection(); PreparedStatement removeValue = connection.prepareStatement("UPDATE verion_player SET " + statType.getColumn() + " = " + statType.getColumn() + " - ? WHERE upt = ?;")) {
+                removeValue.setDouble(1, amount);
+                removeValue.setString(2, upt.getToken());
+
+                removeValue.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     // PLAYER MANAGER
 
     public CompletableFuture<Void> loadOnline() {
@@ -188,7 +256,7 @@ public class PlayerManager {
     }
 
     public CompletableFuture<Void> wipePlayer(Player player) {
-        return CompletableFuture.runAsync(() -> {
+        return runAsync(() -> {
             try (Connection connection = databaseProvider.getConnection(); PreparedStatement delete = connection.prepareStatement(WIPE)) {
                 delete.setString(1, player.getName());
                 delete.executeUpdate();
