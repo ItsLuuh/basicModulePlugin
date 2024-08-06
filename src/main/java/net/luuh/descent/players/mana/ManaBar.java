@@ -31,12 +31,12 @@ public class ManaBar {
         return userStats.getPlayerUPT().getPlayer();
     }
 
-    public double getManaRegen() throws ExecutionException, InterruptedException {
-        return userStats.get(manaRegen) + userStats.get(StatType.MANA_REGEN).get();
+    public double getManaRegen() {
+        return userStats.get(manaRegen) + userStats.getVisual(StatType.MANA_REGEN);
     }
 
-    public double getIntelligence() throws ExecutionException, InterruptedException {
-        return userStats.get(intelligence) + userStats.get(StatType.INTELLIGENCE).get();
+    public double getIntelligence() {
+        return userStats.get(intelligence) + userStats.getVisual(StatType.INTELLIGENCE);
     }
 
     public double getMana() {

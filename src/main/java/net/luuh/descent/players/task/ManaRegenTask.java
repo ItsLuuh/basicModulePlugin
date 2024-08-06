@@ -19,22 +19,11 @@ public class ManaRegenTask extends BukkitRunnable {
     @Override
     public void run() {
         helper.getPlayerManager().forEach(user -> {
-            double intelligence = 0;
-            double manaRegen = 0;
-            double maxMana = 0;
-            double mana = 0;
-            try {
-                intelligence = user.getUserStats().get(StatType.INTELLIGENCE).get();
-                intelligence += user.getUserStats().getManaBar().getIntelligence();
-                manaRegen = user.getUserStats().get(StatType.HEALTH_REGEN).get();
-                manaRegen += user.getUserStats().getManaBar().getManaRegen();
-                maxMana = user.getUserStats().get(StatType.MAX_HEALTH).get();
-                maxMana += user.getUserStats().getManaBar().getMaxMana();
-                mana = user.getUserStats().getManaBar().getMana();
+            double intelligence= user.getUserStats().getManaBar().getIntelligence();
+            double manaRegen= user.getUserStats().getManaBar().getManaRegen();
+            double maxMana= user.getUserStats().getManaBar().getMaxMana();
+            double mana= user.getUserStats().getManaBar().getMana();
 
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
             if(manaRegen > maxMana) return;
             if(mana < maxMana) user.getUserStats().getManaBar().addMana((intelligence + manaRegen)*0.02);
         });

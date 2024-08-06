@@ -75,6 +75,10 @@ public class UserStats {
         return (double) attributes.get(attribute);
     }
 
+    public <Z> double get(Attribute<Z> attribute, StatType statType) {
+        return (double) attributes.get(attribute) + visualStats.get(statType);
+    }
+
     public CompletableFuture<Void> add(double amount, StatType statType) {
         return playerManager.addValue(upt, amount, statType)
                 .thenAccept(value -> visualStats.computeIfPresent(statType, (economyType1, currentAmount) -> currentAmount + amount));

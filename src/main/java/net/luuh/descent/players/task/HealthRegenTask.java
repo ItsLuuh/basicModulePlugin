@@ -26,19 +26,16 @@ public class HealthRegenTask extends BukkitRunnable {
             double healthRegen = 0;
             double maxHealth = 0;
             double health = 0;
-            try {
-                HealthRegen healthRegenAtt = (HealthRegen) AttributeManager.getAttributes().get(HealthRegen.class);
-                Health healthAtt = (Health) AttributeManager.getAttributes().get(Health.class);
-                MaxHealth maxHealthAtt = (MaxHealth) AttributeManager.getAttributes().get(MaxHealth.class);
-                healthRegen = user.getUserStats().get(StatType.HEALTH_REGEN).get();
-                healthRegen += user.getUserStats().get(healthRegenAtt);
-                maxHealth = user.getUserStats().get(StatType.MAX_HEALTH).get();
-                maxHealth += user.getUserStats().get(maxHealthAtt);
-                health = user.getUserStats().get(healthAtt);
 
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            HealthRegen healthRegenAtt = (HealthRegen) AttributeManager.getAttributes().get(HealthRegen.class);
+            Health healthAtt = (Health) AttributeManager.getAttributes().get(Health.class);
+            MaxHealth maxHealthAtt = (MaxHealth) AttributeManager.getAttributes().get(MaxHealth.class);
+            healthRegen = user.getUserStats().getVisual(StatType.HEALTH_REGEN);
+            healthRegen += user.getUserStats().get(healthRegenAtt);
+            maxHealth = user.getUserStats().getVisual(StatType.MAX_HEALTH);
+            maxHealth += user.getUserStats().get(maxHealthAtt);
+            health = user.getUserStats().get(healthAtt);
+
 
             if(healthRegen > maxHealth)return;
             EntityRegainHealthEvent event = new EntityRegainHealthEvent(user.getPlayer(), healthRegen, EntityRegainHealthEvent.RegainReason.CUSTOM);
