@@ -35,7 +35,6 @@ public class Helper {
     private LuckPerms luckPerms = null;
     private final MexFileManager mexFileManager;
     private RMUtils rmutils;
-    private final DefaultColors defaultColors;
     private final Map<Class<? extends Module>, Module> moduleMap = new HashMap<>();
     private final Set<MetadataLoader<?>> loaders = new HashSet<>();
 
@@ -54,9 +53,6 @@ public class Helper {
         this.mexFileManager.saveData();
 
         this.rmutils = new RMUtils(mexFileManager.getMessages(), this);
-
-        this.defaultColors = new DefaultColors(this.mexFileManager.getMessages(), this);
-        this.defaultColors.load();
 
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if (provider != null) {
@@ -142,8 +138,6 @@ public class Helper {
     public Scheduler getScheduler() {
         return scheduler;
     }
-
-    public DefaultColors getDefaultColors() {return defaultColors;}
 
     public MexFileManager getMexFileManager() {return mexFileManager;}
 
