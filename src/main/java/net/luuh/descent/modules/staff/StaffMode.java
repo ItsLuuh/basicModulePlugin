@@ -1,7 +1,7 @@
 package net.luuh.descent.modules.staff;
 
-import net.luuh.descent.abstraction.modules.Module;
 import net.luuh.descent.Helper;
+import net.luuh.descent.abstraction.modules.Module;
 import net.luuh.descent.abstraction.modules.ModuleCommand;
 import net.luuh.descent.modules.staff.commands.StaffModeCommand;
 import net.luuh.descent.modules.staff.manager.StaffModeManager;

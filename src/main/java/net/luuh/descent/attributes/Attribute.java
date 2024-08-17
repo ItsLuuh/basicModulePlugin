@@ -1,6 +1,5 @@
 package net.luuh.descent.attributes;
 
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 public abstract class Attribute<Z> {

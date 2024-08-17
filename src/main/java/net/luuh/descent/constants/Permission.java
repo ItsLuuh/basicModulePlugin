@@ -22,6 +22,7 @@ public enum Permission {
     ITEM_EDITOR_ENCHANT(PREFIX + ".itemeditor.enchant"),
     STAFFMODE_TOGGLE(PREFIX + ".staffmode.toggle"),
     STAFFMODE_TOGGLE_OTHERS(PREFIX + ".staffmode.toggle.others"),
+    TIMECOMMANDS(PREFIX + ".timecommands"),
 
     ;
 

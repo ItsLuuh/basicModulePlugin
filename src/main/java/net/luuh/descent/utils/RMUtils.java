@@ -1,6 +1,7 @@
 package net.luuh.descent.utils;
 
 import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.luuh.descent.Helper;
 import org.bukkit.configuration.ConfigurationSection;
@@ -29,15 +30,7 @@ public class RMUtils {
         if (config.isList(path)) {
             List<Component> components = new ArrayList<>();
             for (String s : readList(path)) {
-                components.add(color.format(
-                        helper.getPlaceholderManager().replace(null,
-                                FontImageWrapper.replaceFontImages(
-                                        color.replaceImage(
-                                                s
-                                        )
-                                )
-                        )
-                ).appendNewline());
+                components.add(color.format(s).appendNewline());
             }
             return Component.text().append(components).build();
         }
@@ -48,15 +41,7 @@ public class RMUtils {
         if (config.isList(path)) {
             List<Component> components = new ArrayList<>();
             for (String s : readList(path)) {
-                components.add(color.format(
-                        helper.getPlaceholderManager().replace(player,
-                                FontImageWrapper.replaceFontImages(
-                                        color.replaceImage(
-                                                s
-                                        )
-                                )
-                        )
-                ).appendNewline());
+                components.add(color.format(PlaceholderAPI.setPlaceholders(player, s)).appendNewline());
             }
             return Component.text().append(components).build();
         }
@@ -72,25 +57,14 @@ public class RMUtils {
 
 
     public Component readTranslation(String path) {
-        if(isString(path)) return color.format(
-                helper.getPlaceholderManager().replace(
-                        color.formatCPH(
-                                readString(path)
-                        )
-                )
-        );
+        if(isString(path)) return color.format(readString(path));
         else return getComponentFromList(path);
     }
 
     public Component readTranslation(Player player, String path) {
         if(isString(path)) return color.format(
-                helper.getPlaceholderManager().replace(player,
-                        color.formatCPH(
-                                readString(path)
-                        )
-                )
-
-
+                PlaceholderAPI.setPlaceholders(player,
+                        readString(path))
         );
         else return getComponentFromList(player, path);
     }
@@ -98,13 +72,13 @@ public class RMUtils {
     public String readTranslationString(Player player, String path) {
         if (isString(path)) {
 
-            return color.formatStringComponent(helper.getPlaceholderManager().replace(player, readString(path)));
+            return color.formatStringComponent(PlaceholderAPI.setPlaceholders(player, readString(path)));
         } else if (config.isList(path)) {
 
             StringBuilder formattedStringBuilder = new StringBuilder();
             for (String s : readList(path)) {
 
-                s = helper.getPlaceholderManager().replace(player, s);
+                s = PlaceholderAPI.setPlaceholders(player, s);
                 formattedStringBuilder.append(color.format(s)).append("\n");
             }
 

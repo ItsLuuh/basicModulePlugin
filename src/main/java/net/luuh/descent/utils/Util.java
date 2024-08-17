@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Optional;
 
 public class Util {
@@ -26,9 +27,39 @@ public class Util {
     }
 
     public static String formatNumberWithDot(double number) {
-        DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator('˙');
+
+        DecimalFormat decimalFormat = new DecimalFormat("#,###.##", symbols);
         return decimalFormat.format(number);
     }
+
+    public static String formatNumberWithoutDecimal(double number) {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator('˙');
+
+        DecimalFormat decimalFormat = new DecimalFormat("#,###", symbols);
+        return decimalFormat.format(number);
+    }
+
+    public static String transformText(String input) {
+        String regular = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String smallCaps = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘQʀꜱᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘQʀꜱᴛᴜᴠᴡxʏᴢ";
+
+        StringBuilder transformedText = new StringBuilder();
+
+        for (char c : input.toCharArray()) {
+            int index = regular.indexOf(c);
+            if (index != -1) {
+                transformedText.append(smallCaps.charAt(index));
+            } else {
+                transformedText.append(c);
+            }
+        }
+
+        return transformedText.toString();
+    }
+
 
     public static String formatNumberWithDot(BigDecimal number) {
         return formatNumberWithDot(number.doubleValue());

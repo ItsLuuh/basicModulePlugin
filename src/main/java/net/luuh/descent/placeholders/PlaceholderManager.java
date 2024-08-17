@@ -6,6 +6,7 @@ import net.luuh.descent.attributes.Attribute;
 import net.luuh.descent.attributes.AttributeManager;
 import net.luuh.descent.attributes.attributes.*;
 import net.luuh.descent.players.economy.constant.EconomyType;
+import net.luuh.descent.players.objects.User;
 import net.luuh.descent.players.stats.constant.StatType;
 import net.luuh.descent.players.stats.object.UserStats;
 import net.luuh.descent.utils.Util;
@@ -67,11 +68,10 @@ public class PlaceholderManager {
     }
 
     private String onRequest(Player player, String params) throws ExecutionException, InterruptedException {
-        Map<Class<? extends Attribute>, Attribute> attributes = AttributeManager.getAttributes();
-        UserStats userStats = helper.getPlayerManager().getUser(player).getUserStats();
+        User user = helper.getUserManager().getUser(player);
         return switch (params.toLowerCase()) {
             case "verion_uuid" -> player.getUniqueId().toString();
-            case "verion_upt" -> helper.getPlayerManager().getUser(player).getUpt().toString();
+            case "verion_upt" -> helper.getUserManager().getUser(player).getUpt().toString();
             case "verion_playername", "verion_displayname" -> player.getName();
             case "verion_ping" -> String.valueOf(player.getPing());
             case "verion_health" -> String.valueOf(player.getHealth());
@@ -87,46 +87,16 @@ public class PlaceholderManager {
             case "verion_pitch" -> String.valueOf(player.getLocation().getPitch());
             case "verion_ip" -> player.getAddress().getAddress().getHostAddress();
             case "verion_balance" ->
-                    String.valueOf(helper.getPlayerManager().getUser(player).getUserEconomy().getVisual(EconomyType.BALANCE));
+                    String.valueOf(helper.getUserManager().getUser(player).getUserEconomy().getVisual(EconomyType.BALANCE));
             case "verion_balance_formatted" ->
-                    Util.formatNumberWithDot(helper.getPlayerManager().getUser(player).getUserEconomy().getVisual(EconomyType.BALANCE));
+                    Util.formatNumberWithDot(helper.getUserManager().getUser(player).getUserEconomy().getVisual(EconomyType.BALANCE));
             case "verion_credits" ->
-                    String.valueOf(helper.getPlayerManager().getUser(player).getUserEconomy().getVisual(EconomyType.CREDITS));
+                    String.valueOf(helper.getUserManager().getUser(player).getUserEconomy().getVisual(EconomyType.CREDITS));
             case "verion_credits_formatted" ->
-                    Util.formatNumberWithDot(helper.getPlayerManager().getUser(player).getUserEconomy().getVisual(EconomyType.CREDITS));
+                    Util.formatNumberWithDot(helper.getUserManager().getUser(player).getUserEconomy().getVisual(EconomyType.CREDITS));
             case "verion_deaths" -> String.valueOf(player.getStatistic(Statistic.DEATHS));
             case "verion_mobkills" -> String.valueOf(player.getStatistic(Statistic.MOB_KILLS));
             case "verion_gamemode" -> player.getGameMode().name();
-            case "verion_stats_strength" ->
-                    String.valueOf(userStats.get(attributes.get(Strength.class), StatType.STRENGTH));
-            case "verion_stats_melee_damage" ->
-                    String.valueOf(userStats.get(attributes.get(MeleeDamage.class)));
-            case "verion_stats_range" ->
-                    String.valueOf(userStats.get(attributes.get(Range.class)));
-            case "verion_stats_ability_damage" ->
-                    String.valueOf(userStats.get(attributes.get(AbilityDamage.class)));
-            case "verion_stats_defense" ->
-                    String.valueOf(userStats.get(attributes.get(Defense.class), StatType.DEFENSE));
-            case "verion_stats_health_regen" ->
-                    String.valueOf(userStats.get(attributes.get(HealthRegen.class), StatType.HEALTH_REGEN));
-            case "verion_stats_crit_chance" ->
-                    String.valueOf(userStats.get(attributes.get(CritChance.class), StatType.CRIT_CHANCE));
-            case "verion_stats_crit_damage" ->
-                    String.valueOf(userStats.get(attributes.get(CritDamage.class), StatType.CRIT_DAMAGE));
-            case "verion_stats_intelligence" ->
-                    String.valueOf(userStats.getManaBar().getIntelligence());
-            case "verion_stats_max_mana" ->
-                    String.valueOf(userStats.getManaBar().getMaxMana());
-            case "verion_stats_mana_damage" ->
-                    String.valueOf(userStats.get(attributes.get(ManaDamage.class)));
-            case "verion_stats_mana_regen" ->
-                    String.valueOf(userStats.get(attributes.get(ManaRegen.class), StatType.MANA_REGEN));
-            case "verion_stats_agility" ->
-                    String.valueOf(userStats.get(attributes.get(Agility.class), StatType.AGILITY));
-            case "verion_stats_player_speed" ->
-                    String.valueOf(userStats.get(attributes.get(PlayerSpeed.class), StatType.PLAYER_SPEED));
-            case "verion_stats_attack_speed" ->
-                    String.valueOf(userStats.get(attributes.get(AttackSpeed.class)));
             default -> null;
         };
     }

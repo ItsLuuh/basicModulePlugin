@@ -1,11 +1,15 @@
 package net.luuh.descent.modules.essentials;
 
-import net.luuh.descent.abstraction.modules.Module;
 import net.luuh.descent.Helper;
+import net.luuh.descent.abstraction.modules.Module;
 import net.luuh.descent.abstraction.modules.ModuleCommand;
 import net.luuh.descent.modules.essentials.commands.CoreCommand;
 import net.luuh.descent.modules.essentials.commands.FlyCommand;
 import net.luuh.descent.modules.essentials.commands.gamemodes.*;
+import net.luuh.descent.modules.essentials.commands.time.DayCommand;
+import net.luuh.descent.modules.essentials.commands.time.MidnightCommand;
+import net.luuh.descent.modules.essentials.commands.time.NightCommand;
+import net.luuh.descent.modules.essentials.commands.time.NoonCommand;
 
 import java.util.Set;
 
@@ -24,7 +28,11 @@ public class Essentials extends Module {
                 new CreativeCommand(this.helper, this),
                 new SpectatorCommand(this.helper, this),
                 new AdventureCommand(this.helper, this),
-                new FlyCommand(this.helper, this)
+                new FlyCommand(this.helper, this),
+                new DayCommand(this.helper, this),
+                new NightCommand(this.helper, this),
+                new NoonCommand(this.helper, this),
+                new MidnightCommand(this.helper, this)
         );
     }
 

@@ -4,39 +4,39 @@ import net.luuh.descent.Helper;
 import net.luuh.descent.abstraction.modules.metadata.loader.MetadataLoader;
 import net.luuh.descent.abstraction.modules.metadata.loader.SQLMetadataLoader;
 import net.luuh.descent.abstraction.modules.metadata.loader.SimpleMetadataLoader;
-import net.luuh.descent.attributes.Attribute;
-import net.luuh.descent.attributes.AttributeManager;
 import net.luuh.descent.database.DatabaseProvider;
 import net.luuh.descent.players.economy.constant.EconomyType;
 import net.luuh.descent.players.economy.object.UserEconomy;
+import net.luuh.descent.players.mana.HealthBar;
+import net.luuh.descent.players.mana.ManaBar;
 import net.luuh.descent.players.objects.UPT;
 import net.luuh.descent.players.objects.User;
 import net.luuh.descent.players.stats.constant.StatType;
 import net.luuh.descent.players.stats.object.UserStats;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-public class PlayerManager {
+public class UserManager {
 
     private final Map<String, User> players = new HashMap<>();
 
     private final Helper helper;
     private final DatabaseProvider databaseProvider;
 
-    public PlayerManager(Helper helper) {
+    public UserManager(Helper helper) {
         this.helper = helper;
         this.databaseProvider = helper.getDatabaseProvider();
     }
@@ -78,56 +78,87 @@ public class PlayerManager {
     public CompletableFuture<Void> load(Player player) {
         return runAsync(() -> {
             String playerName = player.getName();
-            try (Connection connection = databaseProvider.getConnection(); PreparedStatement select = connection.prepareStatement(SELECT)) {
-                select.setString(1, player.getName());
+            try (Connection connection = databaseProvider.getConnection();
+                 PreparedStatement select = connection.prepareStatement(SELECT)) {
+
+                select.setString(1, playerName);
                 ResultSet selectResult = select.executeQuery();
 
-                String uptS;
-                UPT upt = new UPT(player);
+                UPT upt = null;
                 Map<StatType, Double> stats = new HashMap<>();
                 Map<EconomyType, BigDecimal> economy = new HashMap<>();
-                if (selectResult.next()) {
-                    upt = new UPT(player, selectResult.getString("upt"));
-                    for(StatType statType : StatType.values())
-                        stats.put(statType, selectResult.getDouble(statType.getColumn()));
 
-                    for(EconomyType economyType : EconomyType.values())
+                if (selectResult.next()) {
+                    String uptString = selectResult.getString("upt");
+                    if (uptString != null) {
+                        upt = new UPT(player, uptString);
+                    }
+
+                    for (StatType statType : StatType.values()) {
+                        stats.put(statType, selectResult.getDouble(statType.getColumn()));
+                    }
+
+                    for (EconomyType economyType : EconomyType.values()) {
                         economy.put(economyType, selectResult.getBigDecimal(economyType.getColumn()));
+                    }
 
                 } else {
                     try (PreparedStatement register = connection.prepareStatement(REGISTER, PreparedStatement.RETURN_GENERATED_KEYS)) {
                         upt = UPT.generate(player);
-                        uptS = upt.getToken();
+                        String uptS = upt.getToken();
 
                         register.setString(1, uptS);
-                        register.setString(2, player.getName());
+                        register.setString(2, playerName);
                         register.executeUpdate();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
                     }
                 }
 
-                UserStats userStats = new UserStats(this, upt, stats);
-                userStats.loadAttributes(player);
+                if (upt == null) {
+                    throw new IllegalStateException("UPT cannot be null");
+                }
 
+                if (stats.isEmpty()) {
+                    Bukkit.getLogger().warning("Stats map is empty for player: " + playerName);
+                }
+                if (economy.isEmpty()) {
+                    Bukkit.getLogger().warning("Economy map is empty for player: " + playerName);
+                }
+
+                UserStats userStats = null;
+                try {
+                    userStats = new UserStats(this, upt, stats);
+                } catch (Exception e) {
+                    Bukkit.getLogger().severe("Failed to create UserStats object for player: " + playerName);
+                    e.printStackTrace();
+                }
                 UserEconomy userEconomy = new UserEconomy(this, upt, economy);
 
                 User user = new User(upt, playerName, userEconomy, userStats);
 
-                for (MetadataLoader<?> loader : helper.getLoaders()) {
-                    if (loader instanceof SQLMetadataLoader<?> sqlLoader)
-                        user.loadMetadata(sqlLoader.load(user, connection));
-
-                    if (loader instanceof SimpleMetadataLoader<?> simpleLoader)
-                        user.loadMetadata(simpleLoader.load(user));
+                if (user != null) {
+                    for (MetadataLoader<?> loader : helper.getLoaders()) {
+                        if (loader instanceof SQLMetadataLoader<?> sqlLoader) {
+                            user.loadMetadata(sqlLoader.load(user, connection));
+                        } else if (loader instanceof SimpleMetadataLoader<?> simpleLoader) {
+                            user.loadMetadata(simpleLoader.load(user));
+                        }
+                    }
+                    players.put(playerName, user);
+                    Bukkit.getLogger().info("User loaded and added to manager: " + playerName);
+                } else {
+                    Bukkit.getLogger().severe("Failed to create User object for player: " + playerName);
                 }
-
-                players.put(player.getName(), user);
             } catch (SQLException e) {
+                Bukkit.getLogger().severe("SQL Error while loading user: " + playerName);
+                e.printStackTrace();
+            } catch (Exception e) {
+                Bukkit.getLogger().severe("Unexpected error while loading user: " + playerName);
                 e.printStackTrace();
             }
         });
     }
+
+
 
     // USER ECONOMY MANAGER
 

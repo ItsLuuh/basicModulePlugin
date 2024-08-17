@@ -3,6 +3,7 @@ package net.luuh.descent.modules.essentials.commands.gamemodes;
 import net.luuh.descent.Helper;
 import net.luuh.descent.abstraction.modules.CommandSuccessException;
 import net.luuh.descent.abstraction.modules.ModuleCommand;
+import net.luuh.descent.constants.CommandsCaseExceptions;
 import net.luuh.descent.constants.Permission;
 import net.luuh.descent.modules.essentials.Essentials;
 import org.bukkit.Bukkit;
@@ -36,26 +37,17 @@ public class GamemodeCommand extends ModuleCommand<Essentials> {
 
         } else {
 
-            if (!Permission.GAMEMODE_OTHERS.has(player)) {
-                player.sendMessage(helper.getRMUtils().readTranslation(player, "case-no-perms"));
-                throw new CommandSuccessException(false);
-            }
+            if (!Permission.GAMEMODE_OTHERS.has(player)) throw new CommandSuccessException(false, helper.getRMUtils(), CommandsCaseExceptions.NO_PERMS, player);
             if (Bukkit.getPlayer(args[1]) != null) {
                 target = Bukkit.getPlayer(args[1]);
                 changeTargetGamemode(player, target, helper, gamemode);
-            } else {
-                player.sendMessage(helper.getRMUtils().readTranslation("case-invalid-args"));
-                throw new CommandSuccessException(false);
-            }
+            } else throw new CommandSuccessException(false, helper.getRMUtils(), CommandsCaseExceptions.INVALID_ARGS, player);
         }
     }
 
     public static void changePlayerGamemode(Player player, Helper helper, GameMode gameMode) throws CommandSuccessException {
         String perm = "GAMEMODE_" + gameMode.toString().toUpperCase();
-        if(!Permission.valueOf(perm).has(player)) {
-            player.sendMessage(helper.getRMUtils().readTranslation("case-no-perms"));
-            throw new CommandSuccessException(false);
-        }
+        if(!Permission.valueOf(perm).has(player)) throw new CommandSuccessException(false, helper.getRMUtils(), CommandsCaseExceptions.NO_PERMS, player);
         player.setGameMode(gameMode);
         player.sendMessage(helper.getRMUtils().readTranslation(player,"gamemode"));
         throw new CommandSuccessException(true);
@@ -63,10 +55,7 @@ public class GamemodeCommand extends ModuleCommand<Essentials> {
 
     public static void changeTargetGamemode(Player player, Player target, Helper helper, GameMode gameMode) throws CommandSuccessException {
         String perm = "GAMEMODE_" + gameMode.name().toUpperCase();
-        if(!Permission.valueOf(perm).has(player) && !Permission.GAMEMODE_OTHERS.has(player)) {
-            player.sendMessage(helper.getRMUtils().readTranslation("case-no-perms"));
-            throw new CommandSuccessException(false);
-        }
+        if(!Permission.valueOf(perm).has(player) && !Permission.GAMEMODE_OTHERS.has(player)) throw new CommandSuccessException(false, helper.getRMUtils(), CommandsCaseExceptions.NO_PERMS, player);
         target.setGameMode(gameMode);
 
         Map<String, String> replace = new HashMap<>();

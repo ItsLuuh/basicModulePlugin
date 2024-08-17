@@ -3,6 +3,8 @@ package net.luuh.descent.attributes;
 
 import net.luuh.descent.attributes.attributes.*;
 import net.luuh.descent.persistent.PersistentData;
+import net.luuh.descent.players.stats.object.UserAttributes;
+import net.luuh.descent.players.stats.object.UserStats;
 import net.luuh.descent.utils.ItemBuilder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -11,7 +13,7 @@ import java.util.*;
 
 public class AttributeManager {
 
-    private static final Map<Class<? extends Attribute>, Attribute> attributeMap = new HashMap<>();
+    private static final Set<Attribute<?>> attributeMap = new HashSet<>();
 
     public AttributeManager(){
         registerAttribute(new Strength());
@@ -33,49 +35,66 @@ public class AttributeManager {
         registerAttribute(new AttackSpeed());
     }
 
-    public <Z> void registerAttribute(Attribute<Z> attribute){
-        attributeMap.put(attribute.getClass(), attribute);
+    public void registerAttribute(Attribute<Double> attribute){
+        attributeMap.add(attribute);
     }
 
-    // there are two types of attributes, stats and abilities
+    // there are two types of attributes, stats and items
     // stats are attributes that are shown to the player, like health, defense, etc.
-    // abilities are attributes that are used for example to create a key to open a gate
-    public static <Z> ItemStack setAttribute(ItemStack item, Attribute<Z> attribute) {
-        if(getItemAttribute(item, attribute)) return item;
+    // items attributes are used for example to create a key to open a gate
+    public static <Z> ItemStack setItemAttribute(ItemStack item, Attribute<Z> attribute) {
+        if(isAttributePresent(item, attribute)) return item;
         return new ItemBuilder(item)
                 .addPersistent("attribute-" + attribute.getName(), attribute.getDataType(), attribute.getValue())
                 .get();
     }
 
-    public static Map<Class<? extends Attribute>, Attribute> getAttributes(){
+    public static Set<Attribute<?>> getAttributes(){
         return attributeMap;
     }
 
-    public static <Z> boolean getItemAttribute(ItemStack item, Attribute<Z> attribute) {
+    public static Attribute<Double> getStatAttribute(String name){
+        for(Attribute attribute : attributeMap){
+            if(attribute.getName().equals(name) && attribute.getDataType().equals(PersistentDataType.DOUBLE)) return attribute;
+        }
+        return null;
+    }
+
+    public static <Z> boolean isAttributePresent(ItemStack item, Attribute<Z> attribute) {
         Optional<Z> value = PersistentData.get(item.getItemMeta(), "attribute-" + attribute.getName(), attribute.getDataType());
         return value.isPresent();
+    }
+
+    public static <Z> Set<Attribute<Z>> getItemAttributes(ItemStack item) {
+        Set<Attribute<Z>> attributes = new HashSet<>();
+        for(Attribute attribute : attributeMap){
+            if(isAttributePresent(item, attribute))attributes.add(attribute);
+        }
+        return attributes;
+    }
+
+    public static Set<Attribute<Double>> getItemStatsAttributes(ItemStack item) {
+        Set<Attribute<Double>> attributes = new HashSet<>();
+        for(Attribute attribute : attributeMap){
+            if(isAttributePresent(item, attribute) && attribute.getDataType().equals(PersistentDataType.DOUBLE))attributes.add(attribute);
+        }
+        return attributes;
     }
 
     public static <Z> Optional<Z> getValue(ItemStack item, Attribute<Z> attribute) {
         return PersistentData.get(item.getItemMeta(), "attribute-" + attribute.getName(), attribute.getDataType());
     }
 
-    public static <Z> Set<Attribute<Z>> getItemAttributes(ItemStack item) {
-        Set<Attribute<Z>> attributes = new HashSet<>();
-        for(Attribute attribute : attributeMap.values()){
-            if(getItemAttribute(item, attribute))attributes.add(attribute);
+    public static void changeAttributes(ItemStack currentItem, ItemStack cursorItem, UserAttributes userAttributes){
+        if(getItemStatsAttributes(currentItem).isEmpty() && getItemStatsAttributes(cursorItem).isEmpty()) return;
+
+        for(Attribute<Double> attribute : getItemStatsAttributes(currentItem)) {
+            userAttributes.reset(attribute.getClass().getName());
         }
-        return attributes;
-    }
 
-    public static Set<Attribute<Double>> getStatsAttributes(ItemStack item) {
-        Set<Attribute<Double>> attributes = new HashSet<>();
-        for(Attribute attribute : attributeMap.values()){
-            if(getItemAttribute(item, attribute) && attribute.getDataType().equals(PersistentDataType.DOUBLE))attributes.add(attribute);
+        for(Attribute<Double> attribute : getItemStatsAttributes(cursorItem)) {
+            userAttributes.set(attribute.getClass().getName(), attribute.getValue());
         }
-        return attributes;
     }
-
-
 
 }

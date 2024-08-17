@@ -3,6 +3,7 @@ package net.luuh.descent.modules.essentials.commands;
 import net.luuh.descent.Helper;
 import net.luuh.descent.abstraction.modules.CommandSuccessException;
 import net.luuh.descent.abstraction.modules.ModuleCommand;
+import net.luuh.descent.constants.CommandsCaseExceptions;
 import net.luuh.descent.constants.Permission;
 import net.luuh.descent.modules.essentials.Essentials;
 import org.bukkit.Bukkit;
@@ -17,7 +18,7 @@ public class FlyCommand extends ModuleCommand<Essentials> {
 
     @Override
     protected void execute(Player player, String[] args) throws CommandSuccessException {
-        if(!Permission.FLY.has(player)) return;
+        if(!Permission.FLY.has(player)) throw new CommandSuccessException(false, helper.getRMUtils(), CommandsCaseExceptions.NO_PERMS, player);
         if(args.length > 0) {
             Player target;
             if(args[1] != null && Permission.FLY_OTHERS.has(player) && Bukkit.getPlayer(args[1]) != null && Bukkit.getPlayer(args[1]).isOnline()) target = Bukkit.getPlayer(args[1]);

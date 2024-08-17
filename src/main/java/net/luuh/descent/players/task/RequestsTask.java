@@ -14,7 +14,7 @@ public class RequestsTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        helper.getPlayerManager().forEach(user -> {
+        helper.getUserManager().forEach(user -> {
             if(user.getRequests() == null) return;
             user.getRequests().forEach(request -> {
                 if (request.isExpired()) {

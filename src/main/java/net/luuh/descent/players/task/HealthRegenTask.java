@@ -1,16 +1,15 @@
 package net.luuh.descent.players.task;
 
 import net.luuh.descent.Helper;
-import net.luuh.descent.attributes.AttributeManager;
 import net.luuh.descent.attributes.attributes.Health;
 import net.luuh.descent.attributes.attributes.HealthRegen;
 import net.luuh.descent.attributes.attributes.MaxHealth;
+import net.luuh.descent.players.mana.HealthBar;
 import net.luuh.descent.players.stats.constant.StatType;
+import net.luuh.descent.players.stats.object.UserStats;
 import org.bukkit.Bukkit;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.concurrent.ExecutionException;
 
 public class HealthRegenTask extends BukkitRunnable {
 
@@ -22,24 +21,23 @@ public class HealthRegenTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        helper.getPlayerManager().forEach(user -> {
-            double healthRegen = 0;
-            double maxHealth = 0;
-            double health = 0;
+        helper.getUserManager().forEach(user -> {
+            if (user == null) {
+                throw new IllegalStateException("User is not initialized");
+            }
+            HealthBar healthBar = user.getHealthBar();
+            if (healthBar == null) {
+                throw new IllegalStateException("HealthBar is not initialized");
+            }
+            double healthRegen = user.getHealthBar().getHealthRegen();
+            double maxHealth = user.getHealthBar().getMaxHealth();
+            double health = user.getHealthBar().getHealth();
 
-            HealthRegen healthRegenAtt = (HealthRegen) AttributeManager.getAttributes().get(HealthRegen.class);
-            Health healthAtt = (Health) AttributeManager.getAttributes().get(Health.class);
-            MaxHealth maxHealthAtt = (MaxHealth) AttributeManager.getAttributes().get(MaxHealth.class);
-            healthRegen = user.getUserStats().getVisual(StatType.HEALTH_REGEN);
-            healthRegen += user.getUserStats().get(healthRegenAtt);
-            maxHealth = user.getUserStats().getVisual(StatType.MAX_HEALTH);
-            maxHealth += user.getUserStats().get(maxHealthAtt);
-            health = user.getUserStats().get(healthAtt);
+            if(user.getPlayer() != null && user.getPlayer().getMaxHealth() < maxHealth) user.getPlayer().setMaxHealth(maxHealth);
 
-
-            if(healthRegen > maxHealth)return;
-            EntityRegainHealthEvent event = new EntityRegainHealthEvent(user.getPlayer(), healthRegen, EntityRegainHealthEvent.RegainReason.CUSTOM);
-            if(health < maxHealth) Bukkit.getPluginManager().callEvent(event);
+            if(health == maxHealth) return;
+            if(healthRegen + health >= maxHealth) user.getHealthBar().setHealth(maxHealth);
+            else if(health < maxHealth) user.getHealthBar().addHealth(healthRegen);
         });
     }
 }

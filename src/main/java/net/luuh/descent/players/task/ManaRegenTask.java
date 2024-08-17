@@ -1,12 +1,8 @@
 package net.luuh.descent.players.task;
 
 import net.luuh.descent.Helper;
-import net.luuh.descent.attributes.AttributeManager;
-import net.luuh.descent.attributes.attributes.*;
-import net.luuh.descent.players.stats.constant.StatType;
+import net.luuh.descent.players.mana.ManaBar;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.concurrent.ExecutionException;
 
 public class ManaRegenTask extends BukkitRunnable {
 
@@ -18,14 +14,22 @@ public class ManaRegenTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        helper.getPlayerManager().forEach(user -> {
-            double intelligence= user.getUserStats().getManaBar().getIntelligence();
-            double manaRegen= user.getUserStats().getManaBar().getManaRegen();
-            double maxMana= user.getUserStats().getManaBar().getMaxMana();
-            double mana= user.getUserStats().getManaBar().getMana();
+        helper.getUserManager().forEach(user -> {
+            if (user == null) {
+                throw new IllegalStateException("User is not initialized");
+            }
+            ManaBar manaBar = user.getManaBar();
+            if (manaBar == null) {
+                throw new IllegalStateException("HealthBar is not initialized");
+            }
+            double intelligence= user.getManaBar().getIntelligence();
+            double manaRegen= user.getManaBar().getManaRegen();
+            double maxMana= user.getManaBar().getMaxMana();
+            double mana= user.getManaBar().getMana();
 
-            if(manaRegen > maxMana) return;
-            if(mana < maxMana) user.getUserStats().getManaBar().addMana((intelligence + manaRegen)*0.02);
+            if(mana == maxMana) return;
+            if(manaRegen + mana >= maxMana) user.getManaBar().setMana(maxMana);
+            if(mana < maxMana) user.getManaBar().addMana((intelligence + manaRegen)*0.02);
         });
     }
 }

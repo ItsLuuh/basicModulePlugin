@@ -1,5 +1,9 @@
 package net.luuh.descent.abstraction.modules;
 
+import net.luuh.descent.constants.CommandsCaseExceptions;
+import net.luuh.descent.utils.RMUtils;
+import org.bukkit.entity.Player;
+
 public class CommandSuccessException extends Exception {
     private final boolean success;
 
@@ -9,10 +13,10 @@ public class CommandSuccessException extends Exception {
         this.success = success;
     }
 
-    // Constructor that accepts a boolean, a message and a cause
-    public CommandSuccessException(boolean success, String message, Throwable cause) {
-        super(message, cause);
+    // Constructor that accepts a boolean, a message and a player
+    public CommandSuccessException(boolean success, RMUtils rmUtils, CommandsCaseExceptions caseEx, Player player) {
         this.success = success;
+        player.sendMessage(rmUtils.readTranslation(player, caseEx.getPermission()));
     }
 
     public CommandSuccessException(boolean success) {

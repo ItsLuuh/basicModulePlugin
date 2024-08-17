@@ -1,18 +1,17 @@
 package net.luuh.descent;
 
-import net.luuh.descent.abstraction.modules.Module;
 import net.luckperms.api.LuckPerms;
+import net.luuh.descent.abstraction.modules.Module;
 import net.luuh.descent.abstraction.modules.metadata.loader.MetadataLoader;
-import net.luuh.descent.constants.DefaultColors;
 import net.luuh.descent.database.DatabaseProvider;
 import net.luuh.descent.files.MexFileManager;
 import net.luuh.descent.modules.essentials.Essentials;
 import net.luuh.descent.modules.itemeditor.ItemEditor;
 import net.luuh.descent.modules.staff.StaffMode;
 import net.luuh.descent.modules.stats.Stats;
-import net.luuh.descent.placeholders.PlaceholderManager;
+import net.luuh.descent.placeholders.PAPIHook;
 import net.luuh.descent.players.listeners.PlayerListener;
-import net.luuh.descent.players.manager.PlayerManager;
+import net.luuh.descent.players.manager.UserManager;
 import net.luuh.descent.players.task.HealthRegenTask;
 import net.luuh.descent.players.task.ManaRegenTask;
 import net.luuh.descent.players.task.RequestsTask;
@@ -30,9 +29,9 @@ public class Helper {
 
     private final Main plugin;
     private final DatabaseProvider databaseProvider;
-    private final PlayerManager playerManager;
+    private final UserManager userManager;
     private final Scheduler scheduler;
-    private final PlaceholderManager papi;
+    //private final PlaceholderManager papi;
     private LuckPerms luckPerms = null;
     private final MexFileManager mexFileManager;
     private RMUtils rmutils;
@@ -48,8 +47,7 @@ public class Helper {
         this.databaseProvider = new DatabaseProvider(plugin);
         this.databaseProvider.assemble();
 
-        this.playerManager = new PlayerManager(this);
-        this.playerManager.loadOnline().join();
+        this.userManager = new UserManager(this);
 
         this.mexFileManager = new MexFileManager();
         this.mexFileManager.setup(plugin);
@@ -65,9 +63,7 @@ public class Helper {
             luckPerms = provider.getProvider();
         }
 
-        this.scheduler.timerAsync(new RequestsTask(this), 0, 20);
-        this.scheduler.timerAsync(new ManaRegenTask(this), 0, 20);
-        this.scheduler.timerAsync(new HealthRegenTask(this), 0, 20);
+        new PAPIHook(this).register();
 
         Essentials essentials = new Essentials(this);
         ItemEditor itemEditor = new ItemEditor(this);
@@ -85,9 +81,14 @@ public class Helper {
 
         this.moduleMap.values().forEach(Module::enable);
 
-        this.papi = new PlaceholderManager(this);
+        // this.papi = new PlaceholderManager(this);
 
         new PlayerListener(this);
+        this.userManager.loadOnline().join();
+
+        this.scheduler.timerAsync(new RequestsTask(this), 0, 20);
+        this.scheduler.timerAsync(new ManaRegenTask(this), 0, 20);
+        this.scheduler.timer(new HealthRegenTask(this), 0, 20);
 
     }
 
@@ -124,11 +125,11 @@ public class Helper {
         return plugin;
     }
 
-    public PlayerManager getPlayerManager() {
-        return playerManager;
+    public UserManager getUserManager() {
+        return userManager;
     }
 
-    public PlaceholderManager getPlaceholderManager() {return papi;}
+    //public PlaceholderManager getPlaceholderManager() {return papi;}
 
     public DatabaseProvider getDatabaseProvider() {
         return databaseProvider;

@@ -2,7 +2,7 @@ package net.luuh.descent.players.economy.object;
 
 
 import net.luuh.descent.players.economy.constant.EconomyType;
-import net.luuh.descent.players.manager.PlayerManager;
+import net.luuh.descent.players.manager.UserManager;
 import net.luuh.descent.players.objects.UPT;
 
 import java.math.BigDecimal;
@@ -11,12 +11,12 @@ import java.util.concurrent.CompletableFuture;
 
 public class UserEconomy {
 
-    private final PlayerManager playerManager;
+    private final UserManager userManager;
     private final UPT upt;
     private final Map<EconomyType, BigDecimal> visualBalances;
 
-    public UserEconomy(PlayerManager playerManager, UPT upt, Map<EconomyType, BigDecimal> visualBalances) {
-        this.playerManager = playerManager;
+    public UserEconomy(UserManager userManager, UPT upt, Map<EconomyType, BigDecimal> visualBalances) {
+        this.userManager = userManager;
         this.upt = upt;
         this.visualBalances = visualBalances;
     }
@@ -26,11 +26,11 @@ public class UserEconomy {
     }
 
     public CompletableFuture<Void> set(double amount, EconomyType economyType) {
-        return playerManager.setValue(upt, economyType, amount).thenRun(() -> visualBalances.put(economyType, BigDecimal.valueOf(amount)));
+        return userManager.setValue(upt, economyType, amount).thenRun(() -> visualBalances.put(economyType, BigDecimal.valueOf(amount)));
     }
 
     public CompletableFuture<Double> get(EconomyType economyType) {
-        return playerManager.getValue(upt, economyType).thenApply(value -> {
+        return userManager.getValue(upt, economyType).thenApply(value -> {
             visualBalances.put(economyType, BigDecimal.valueOf(value));
 
             return value;
@@ -38,12 +38,12 @@ public class UserEconomy {
     }
 
     public CompletableFuture<Void> add(double amount, EconomyType economyType) {
-        return playerManager.addValue(upt, amount, economyType)
+        return userManager.addValue(upt, amount, economyType)
                 .thenAccept(value -> visualBalances.computeIfPresent(economyType, (economyType1, bigDecimal) -> bigDecimal.add(BigDecimal.valueOf(amount))));
     }
 
     public CompletableFuture<Void> remove(double amount, EconomyType economyType) {
-        return playerManager.removeValue(upt, amount, economyType)
+        return userManager.removeValue(upt, amount, economyType)
                 .thenAccept(value -> visualBalances.computeIfPresent(economyType, (economyType1, bigDecimal) -> bigDecimal.subtract(BigDecimal.valueOf(amount))));
     }
 }

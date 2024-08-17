@@ -22,14 +22,16 @@ public class ArmorSwapListener extends ModuleListener<Stats> {
     public void onPlayerInteract(PlayerInteractEvent event) {
         ItemStack item = event.getItem();
 
-        if (item != null && isArmor(item)) {
+        if (isArmor(item)) {
             Player player = event.getPlayer();
-            if(AttributeManager.getStatsAttributes(item).isEmpty()) return;
-            UserStats userStats = helper.getPlayerManager().getUser(player).getUserStats();
-            for(Attribute<Double> attribute : AttributeManager.getStatsAttributes(item)) {
-
-                userStats.set(attribute.getValue(), attribute);
-            }
+            if(isHelmet(item))
+                AttributeManager.changeAttributes(player.getInventory().getHelmet(), item, helper.getUserManager().getUser(player).getUserAttributes());
+            else if(isChestplate(item))
+                AttributeManager.changeAttributes(player.getInventory().getChestplate(), item, helper.getUserManager().getUser(player).getUserAttributes());
+            else if(isLeggings(item))
+                AttributeManager.changeAttributes(player.getInventory().getLeggings(), item, helper.getUserManager().getUser(player).getUserAttributes());
+            else if(isBoots(item))
+                AttributeManager.changeAttributes(player.getInventory().getBoots(), item, helper.getUserManager().getUser(player).getUserAttributes());
         }
     }
 
@@ -38,6 +40,30 @@ public class ArmorSwapListener extends ModuleListener<Stats> {
         Material material = item.getType();
         return material.name().endsWith("_HELMET") || material.name().endsWith("_CHESTPLATE")
                 || material.name().endsWith("_LEGGINGS") || material.name().endsWith("_BOOTS");
+    }
+
+    private boolean isHelmet(ItemStack item) {
+        if (item == null) return false;
+        Material material = item.getType();
+        return material.name().endsWith("_HELMET");
+    }
+
+    private boolean isChestplate(ItemStack item) {
+        if (item == null) return false;
+        Material material = item.getType();
+        return material.name().endsWith("_CHESTPLATE");
+    }
+
+    private boolean isLeggings(ItemStack item) {
+        if (item == null) return false;
+        Material material = item.getType();
+        return material.name().endsWith("_LEGGINGS");
+    }
+
+    private boolean isBoots(ItemStack item) {
+        if (item == null) return false;
+        Material material = item.getType();
+        return material.name().endsWith("_BOOTS");
     }
 
 

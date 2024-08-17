@@ -22,22 +22,7 @@ public class HotbarSwapListener extends ModuleListener<Stats> {
         ItemStack previousitem = player.getInventory().getItem( event.getPreviousSlot() );
         ItemStack newitem = player.getInventory().getItem( event.getNewSlot() );
 
-        changeAttributes(previousitem, newitem, player);
+        AttributeManager.changeAttributes(previousitem, newitem, helper.getUserManager().getUser(player).getUserAttributes());
     }
 
-    private void changeAttributes(ItemStack currentItem, ItemStack cursorItem, Player player){
-        if(AttributeManager.getStatsAttributes(currentItem).isEmpty() && AttributeManager.getStatsAttributes(cursorItem).isEmpty()) return;
-
-        UserStats userStats = helper.getPlayerManager().getUser(player).getUserStats();
-
-        for(Attribute<Double> attribute : AttributeManager.getStatsAttributes(currentItem)) {
-
-            userStats.remove(attribute.getValue(), attribute);
-        }
-
-        for(Attribute<Double> attribute : AttributeManager.getStatsAttributes(cursorItem)) {
-
-            userStats.set(attribute.getValue(), attribute);
-        }
-    }
 }

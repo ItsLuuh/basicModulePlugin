@@ -2,7 +2,12 @@ package net.luuh.descent.players.objects;
 
 import net.luuh.descent.abstraction.modules.metadata.Metadata;
 import net.luuh.descent.abstraction.request.Request;
+import net.luuh.descent.attributes.Attribute;
 import net.luuh.descent.players.economy.object.UserEconomy;
+import net.luuh.descent.players.mana.HealthBar;
+import net.luuh.descent.players.mana.ManaBar;
+import net.luuh.descent.players.stats.constant.StatType;
+import net.luuh.descent.players.stats.object.UserAttributes;
 import net.luuh.descent.players.stats.object.UserStats;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,6 +23,9 @@ public class User {
     private final String displayName;
     private final UserEconomy userEconomy;
     private final UserStats userStats;
+    private UserAttributes userAttributes;
+    private ManaBar manaBar;
+    private HealthBar healthBar;
     private Set<Request> requests;
     private final Map<Class<? extends Metadata>, Metadata> metadata;
 
@@ -39,12 +47,37 @@ public class User {
 
     public Player getPlayer() {return Bukkit.getPlayer(displayName);}
 
+    public ManaBar getManaBar() {
+        return manaBar;
+    }
+    public HealthBar getHealthBar() {
+        return healthBar;
+    }
+
+    public void createManaBar() {
+        this.manaBar = new ManaBar(this);
+    }
+
+    public void createHealthBar() {
+        this.healthBar = new HealthBar(this);
+    }
+
     public UserEconomy getUserEconomy() {
         return userEconomy;
     }
-
     public UserStats getUserStats() {
         return userStats;
+    }
+    public UserAttributes getUserAttributes() {
+        return userAttributes;
+    }
+
+    public void setUserAttributes(UserAttributes userAttributes) {
+        this.userAttributes = userAttributes;
+    }
+
+    public <Z extends Attribute<Double>> double getFinalStat(StatType statType, Class<Z> attribute) {
+        return userStats.getVisual(statType) + getUserAttributes().get(attribute).orElse(0d);
     }
 
     public void setRequests(Set<Request> requests) {
